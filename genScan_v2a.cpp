@@ -54,15 +54,16 @@ void processCommandLineArgs(int argc, char** argv,
  */
 void readFile(const string& fileName, string& seq) {
    ifstream fin(fileName.data());
-   if (!fin.is_open()) {
-      cerr << "\n *** Unable to open '" << fileName << "' as input file\n\n";
+   if (! fin.is_open()) {
+      cerr << "\n *** Unable to open '" << fileName
+           << "' as input file\n\n";
       exit(1);
+   } 
+   char ch = fin.get();
+   while (fin) {
+     seq += ch;
+     ch = fin.get();
    }
-   fin.seekg(0, std::ios::end);
-   long N = fin.tellg();
-   fin.seekg(0, std::ios::beg);
-   seq.resize(N);
-   fin.read((char*)seq.data(), N);
    fin.close();
 }
 
@@ -75,14 +76,12 @@ void readFile(const string& fileName, string& seq) {
              of subSeq within seq.
  */
 long scan(const string& seq, const string& subSeq) {
+   long skip = subSeq.size();
    long count = 0;
-   long n = seq.size();
-   long m = subSeq.size();
-
-   for (long i = 0; i <= n - m; ++i) {
-      if (seq.compare(i, m, subSeq) == 0) {
-         count++;
-      }
+   size_t pos = seq.find(subSeq, 0);
+   while (pos != string::npos) {
+      ++count;
+      pos = seq.find(subSeq, pos + 1);
    }
    return count;
 }
